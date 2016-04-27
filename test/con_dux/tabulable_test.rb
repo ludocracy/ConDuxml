@@ -10,17 +10,13 @@ class Dummy
 end
 
 class TabulableTest < Test::Unit::TestCase
-  # Called before every test method runs. Can be used
-  # to set up fixture information.
+  include Duxml
   def setup
     @d = Dummy.new
     d.rows << Dummy.new << Dummy.new
   end
 
   attr_reader :d
-
-  # Called after every test method runs. Can be used to tear
-  # down fixture information.
 
   def teardown
     # Do nothing
@@ -42,5 +38,11 @@ class TabulableTest < Test::Unit::TestCase
   def test_to_table
     t = d.to_table('rows')
     assert_equal [['var0', 'var1'], ["var0's value", "var1's value"], ["var0's value", "var1's value"]], t
+  end
+
+  def test_to_dita
+    x = d.to_dita
+    answer = %(<table><tgroup cols="2"><thead><row><entry>var0</entry><entry>var1</entry></row></thead><tbody><row><entry>var0's value</entry><entry>var1's value</entry></row><row><entry>var0's value</entry><entry>var1's value</entry></row></tbody></tgroup></table>)
+    assert_equal answer, x.to_s
   end
 end

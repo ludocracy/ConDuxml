@@ -1,10 +1,7 @@
 require 'duxml'
 
 module ConDux
-  include Duxml
-
   class Table
-    include Duxml::ElementGuts
     include Enumerable
 
     def initialize(*ary)
@@ -54,43 +51,6 @@ module ConDux
     def merge(sym=nil, &block)
       sym ||= :merge_rows
       Table.new(chunk(&block).collect do |type, group| method(sym).call(type, group) end)
-    end
-
-
-    def dita
-      t = Element.new('table')
-      colspecs.each do |c| t << c.dita end
-      rows.each do |r| t << r.dita end
-    end
-  end
-
-  class Colspec
-    def initialize(args={})
-      args.each do |k, v| instance_variable_set(k, v) end
-    end
-
-    def dita
-      c = Element.new('colspec')
-      instance_variables.each do |var| c[var] = instance_variable_get(var) end
-    end
-  end
-
-  class Row
-    def initialize(*ary)
-      @entries = ary
-    end
-
-    def dita
-      r = Element.new('row')
-      entries.each do |e|
-        entry = Element.new('entry')
-        entry << e
-        r << entry
-      end
-    end
-
-    def merge_rows(type, group)
-      Row.new(type, group)
     end
   end
 end

@@ -2,23 +2,18 @@ module Describable
   @docs
 
   def set_docs(args)
-    @docs = args[:docs] || [nil, nil, nil]
-    @docs[0] = args[:name] || ['reserved']
-    @docs[1] = args[:brief_descr]
-    @docs[2] = args[:long_descr]
+    @name = args[:name] || ['reserved']
+    @brief_descr = args[:brief_descr] if args[:brief_descr]
+    @long_descr = args[:long_descr] if args[:long_descr]
   end
 
-  attr_reader :docs
+  attr_reader :name, :brief_descr, :long_descr
 
   def brief_description
-    docs[1]
+    @brief_descr
   end
 
   def long_description
-    docs[2]
-  end
-
-  def name
-    docs[0]
+    @long_descr
   end
 end
