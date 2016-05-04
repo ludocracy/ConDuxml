@@ -92,9 +92,9 @@ module Tabulable
 
   def to_header(pattern=nil)
     headings = []
-    nodes.each do |n| headings << n.name if n.nodes.size == 1 && n.nodes.first.is_a?(String) end
+    nodes.each do |n| headings << n.name if n.nodes.size == 1 && n.nodes.first.is_a?(String) && !matches?(n.name, pattern) end
     if respond_to?(:attributes) && attributes.any?
-      attributes.each do |k, v| headings << k end
+      attributes.each do |k, v| headings << k unless matches?(k, pattern) end
     else
       instance_variables.each do |var|
         headings << var.to_s[1..-1] unless matches?(var, pattern)
