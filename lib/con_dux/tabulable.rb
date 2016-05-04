@@ -7,41 +7,41 @@ module Tabulable
   include Duxml
 
   class << self
-    def initialize(rows)
-      @rows = rows
+    def initialize(nodes)
+      @nodes = nodes
     end
   end
 
   extend self
 
-  @rows
-  attr_accessor :rows
+  @nodes
+  attr_accessor :nodes
 
   # returns two or more tables based on chunk criteria
   def split(&block)
-    chunks = rows.chunk(&block)
-    chunks.collect do |type, rows|
-      self.class.new({name: type, rows: rows})
+    chunks = nodes.chunk(&block)
+    chunks.collect do |type, nodes|
+      self.class.new({name: type, nodes: nodes})
     end
   end
 
   # @param pattern [several_variants] if String/Symbol or array of such, differences between merged entities' instance vars matching pattern are masked; if pattern is a hash, the key is the instance var, and the value becomes the new value for the merged entity
-  # @param &block [block] groups rows by &block then merges each group into a single row @see #chunk
+  # @param &block [block] groups nodes by &block then merges each group into a single row @see #chunk
   def merge(pattern, &block)
     self_clone = self.clone
-    self_clone.rows = []
-    chunks = rows.chunk(&block)
-    chunks.each do |type, rows|
+    self_clone.nodes = []
+    chunks = nodes.chunk(&block)
+    chunks.each do |type, nodes|
       new_row_args = {}
       result_array_hash = {}
       dont_merge = false
 
-      if rows.size == 1
-        self_clone.rows << rows.first
+      if nodes.size == 1
+        self_clone.nodes << nodes.first
         next
       end
-      rows.first.instance_variables.each do |var|
-        result_array_hash[var.to_s[1..-1].to_sym] = rows.collect do |row| row.instance_variable_get(var) end
+      nodes.first.instance_variables.each do |var|
+        result_array_hash[var.to_s[1..-1].to_sym] = nodes.collect do |row| row.instance_variable_get(var) end
       end
 
       result_array_hash.each do |var, values|
@@ -65,43 +65,62 @@ module Tabulable
         end # if... else... values.all? do |val| val == values.first end
       end # result_array_hash.each do |var, values|
       if dont_merge
-        self_clone.rows + rows
+        self_clone.nodes + nodes
       else
-        self_clone.rows << rows.first.class.new(new_row_args)
+        self_clone.nodes << nodes.first.class.new(new_row_args)
       end
-    end # chunks.each do |type, rows|
+    end # chunks.each do |type, nodes|
     self_clone
   end # def merge(pattern, &block)
 
   def each(&block)
-    yield rows.each
+    yield nodes.each
   end
 
   def to_row(pattern=nil)
-    instance_variables.collect do |var|
-      instance_variable_get(var) unless matches?(var, pattern)
-    end.compact
+    entries = []
+    nodes.each do |n| entries << n.nodes.first if n.nodes.size == 1 && nodes.first.is_a?(String) && !matches?(n.name, pattern) end
+    if respond_to?(:attributes) && attributes.any?
+      attributes.each do |k, v| entries << v unless matches?(k, pattern) end
+    else
+      instance_variables.each do |var|
+        entries << instance_variable_get(var) unless matches?(var, pattern)
+      end
+    end
+    entries
   end
 
   def to_header(pattern=nil)
-    instance_variables.collect do |var|
-      var.to_s[1..-1] unless matches?(var, pattern)
-    end.compact
+    headings = []
+    nodes.each do |n| headings << n.name if n.nodes.size == 1 && n.nodes.first.is_a?(String) end
+    if respond_to?(:attributes) && attributes.any?
+      attributes.each do |k, v| headings << k end
+    else
+      instance_variables.each do |var|
+        headings << var.to_s[1..-1] unless matches?(var, pattern)
+      end
+    end
+    headings
   end
 
   def to_table(pattern=nil)
-    table_rows = rows.collect do |r| r.to_row(pattern) end
-    [rows.first.to_header(pattern), *table_rows.compact]
+    similar_nodes = nodes.group_by do |n|
+      n.name
+    end.find do |type, grp|
+      grp.size > 1
+    end.last
+    table_nodes = similar_nodes.collect do |r| r.to_row(pattern) end
+    [similar_nodes.first.to_header(pattern), *table_nodes]
   end
 
   def matches?(var, pattern)
     var = var.to_s[0] == '@' ? var.to_s[1..-1] : var.to_s
     pattern = pattern.keys.collect do |k| k.to_s end if pattern.is_a?(Hash)
-    var=='rows' || pattern && pattern.include?(var)
+    var=='nodes' || pattern && pattern.include?(var)
   end
 
   # @param *cols [*[]] column information bound to key, each of which must match a header item
-  def to_dita(pattern=[], *cols)
+  def dita_table(pattern=[], *cols)
     src_tbl = to_table(pattern)
     t = Element.new('table')
     cols.each do |c|
