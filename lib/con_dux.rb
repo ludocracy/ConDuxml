@@ -1,9 +1,8 @@
-require 'duxml'
-require_relative 'con_dux/design'
+# Copyright (c) 2016 Freescale Semiconductor Inc.
+
+require_relative 'con_dux/designable'
 
 module ConDux
-  include Duxml
-
   # @param path [String] path of new XML file to create
   # @return [Doc] new XML document
   def create(path)

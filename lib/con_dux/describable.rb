@@ -1,4 +1,14 @@
+# Copyright (c) 2016 Freescale Semiconductor Inc.
+
 module Describable
+  def set_docs
+    @name = self[:name]
+    #@brief_descr = self[:brief_descr] || self.brief_description.text || self.brief_descr.text TODO make more tolerant
+    #@long_descr = self[:long_descr] || self.long_description || self.long_descr
+  end
+
+  attr_reader :name, :brief_descr, :long_descr
+
   def dita_descr(parent=nil)
     parent ||= []
     n = self[:name] || name || simple_name
