@@ -2,11 +2,12 @@
 
 require File.expand_path(File.dirname(__FILE__) + '/instance')
 
-module Duxml
+module ConDuxml
   # XML object array
   # represents a pattern of copies of a this object's children or referents
   # differentiates between copies using iterator Parameter
-  class Array < Instance
+  module Array
+    include Instance
     include Enumerable
 
     # reifies pattern by actually copying children and assigning each unique properties derived from iterator value

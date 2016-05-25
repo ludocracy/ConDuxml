@@ -2,11 +2,25 @@
 
 require_relative 'con_dux/designable'
 
-module ConDux
-  # @param path [String] path of new XML file to create
-  # @return [Doc] new XML document
-  def create(path)
-    File.write(path, '<topic/>')
-    load(path)
+module ConDuxml
+  include Duxml
+
+  def instantiate(parent=nil)
+    if parent.nil?
+      new_doc = Doc.new
+      parent = doc.root
+      new_doc << parent.dup
+    end
+
+    input = parent.nodes.dup
+    output = []
+    until input.empty? do
+      n = input.shift
+      if n.respond_to?(:instantiate)
+        output << n.instantiate
+      else
+        output << n.dup # TODO - not detached?
+      end
+    end
   end
 end

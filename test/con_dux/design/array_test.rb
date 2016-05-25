@@ -22,11 +22,15 @@ class ArrayTest < Test::Unit::TestCase
     # Do nothing
   end
 
-  def test_to_header
+  def test_instantiate
     h = d.to_header
     assert_equal ['var0', 'var1'], h
 
     h = d.to_header('var0')
     assert_equal ['var1'], h
+  end
+
+  def test_instantiate_2d
+
   end
 end
