@@ -1,8 +1,11 @@
 require 'duxml'
+require_relative '../con_dux/tabulable'
 
 module ConDuxml
   # ConDuxml defines a new Element class by subclassing Duxml's Element and adding #split and #merge transform methods
   class Element < ::Duxml::Element
+    include Tabulable
+
     # @param &block [Block] calls Enumerable#chunk on this element's nodes to group them by result of &block
     # @return [Element] a duplicate element of this node initialized with each subset's nodes
     def split(&block)

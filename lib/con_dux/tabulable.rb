@@ -1,5 +1,3 @@
-require 'duxml'
-
 module ConDuxml
   module Tabulable
     include Enumerable
@@ -19,8 +17,12 @@ module ConDuxml
 
     def to_row(pattern=nil)
       entries = []
-      nodes.each do |n| entries << n.nodes.first if n.nodes.size == 1 && nodes.first.is_a?(String) && !matches?(n.name, pattern) end
-      if respond_to?(:attributes) && attributes.any?
+      nodes.each do |n|
+        if n.nodes.size == 1 && nodes.first.is_a?(String) && !matches?(n.name, pattern)
+          entries << n.nodes.first
+        end
+      end
+      if instance_variable_defined?(:@attributes)
         attributes.each do |k, v| entries << v unless matches?(k, pattern) end
       else
         instance_variables.each do |var|
@@ -32,8 +34,12 @@ module ConDuxml
 
     def to_header(pattern=nil)
       headings = []
-      nodes.each do |n| headings << n.name if n.nodes.size == 1 && n.nodes.first.is_a?(String) && !matches?(n.name, pattern) end
-      if respond_to?(:attributes) && attributes.any?
+      nodes.each do |n|
+        if n.nodes.size == 1 && n.nodes.first.is_a?(String) && !matches?(n.name, pattern)
+          headings << n.name
+        end
+      end
+      if instance_variable_defined?(:@attributes)
         attributes.each do |k, v| headings << k unless matches?(k, pattern) end
       else
         instance_variables.each do |var|
@@ -49,12 +55,15 @@ module ConDuxml
       end.find do |type, grp|
         grp.size > 1
       end.last
-      table_nodes = similar_nodes.collect do |r| r.to_row(pattern) end
+      table_nodes = similar_nodes.collect do |r|
+        r.extend Tabulable unless r.respond_to?(:to_row)
+        r.to_row(pattern)
+      end
       [similar_nodes.first.to_header(pattern), *table_nodes]
     end
 
     # @param *cols [*[]] column information bound to key, each of which must match a header item
-    def dita_table(pattern=[], *cols)
+    def dita_table(pattern=nil, *cols)
       src_tbl = to_table(pattern)
       t = Element.new('table')
       cols.each do |c|
