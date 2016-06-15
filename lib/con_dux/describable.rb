@@ -2,14 +2,13 @@
 
 module ConDuxml
   module Describable
+    # TODO make this safer!!! fails too easily
     def set_docs(args={})
       args = self if args.empty?
-      @name = args[:name]
-      @brief_descr = args[:brief_descr] || args.brief_description.text || args.brief_descr.text # TODO make more tolerant
-      @long_descr = args[:long_descr] || args.long_description || args.long_descr
+      @brief_descr = args.is_a?(Hash) ? args[:brief_descr] : (args.brief_description.text || args.brief_descr.text)
+      @long_descr = args.is_a?(Hash) ? args[:long_descr] : ( args.long_description.nodes || args.long_descr)
     end
 
-    attr_reader :name, :brief_descr, :long_descr
-
+    attr_reader :brief_descr, :long_descr
   end
 end

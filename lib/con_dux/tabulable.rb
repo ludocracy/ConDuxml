@@ -15,6 +15,8 @@ module ConDuxml
       yield nodes.each
     end
 
+    # @param pattern [Hash, String, Symbol, Array] pattern used to filter attributes to output
+    # @return [Array] array of values of attributes that pass filter
     def to_row(pattern=nil)
       entries = []
       nodes.each do |n|
@@ -32,6 +34,8 @@ module ConDuxml
       entries
     end
 
+    # @param pattern [Hash, String, Symbol, Array] @see #to_row @param
+    # @return [Array] array of names of attributes that pass filter
     def to_header(pattern=nil)
       headings = []
       nodes.each do |n|
@@ -49,6 +53,8 @@ module ConDuxml
       headings
     end
 
+    # @param pattern [Hash, String, Symbol, Array] @see #to_row @param
+    # @return [Array] 2D array where columns match #to_header and rows are #to_row output of constituent elements
     def to_table(pattern=nil)
       similar_nodes = nodes.group_by do |n|
         n.name
@@ -56,10 +62,13 @@ module ConDuxml
         grp.size > 1
       end.last
       table_nodes = similar_nodes.collect do |r|
-        r.extend Tabulable unless r.respond_to?(:to_row)
-        r.to_row(pattern)
+        row_pattern = pattern.is_a?(Array) ? pattern.first : pattern
+        r.to_row
+        r.to_row(row_pattern)
       end
-      [similar_nodes.first.to_header(pattern), *table_nodes]
+      header = similar_nodes.first.to_header(pattern.is_a?(Array) ? pattern.last : pattern)
+      raise Exception, "number of header columns (#{header.size}) does not match number of data columns (#{table_nodes.first.size})!" if header.size != table_nodes.first.size
+      [header, *table_nodes]
     end
 
     # @param *cols [*[]] column information bound to key, each of which must match a header item
@@ -94,5 +103,14 @@ module ConDuxml
       end
       t << tgroup
     end # def to_dita(pattern=[], *cols)
+
+    private
+
+    def matches?(attr, pattern)
+      return false if pattern.nil? or pattern.empty?
+      var = attr.to_s[0] == '@' ? attr.to_s[1..-1] : attr.to_s
+      pattern = pattern.keys.collect do |k| k.to_s end if pattern.is_a?(Hash)
+      var=='nodes' || pattern && var.match(pattern.to_s).to_s == var
+    end
   end # module Tabulable
 end

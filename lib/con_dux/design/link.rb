@@ -19,8 +19,6 @@ module ConDuxml
     def instantiate
       [resolve_ref]
     end
-
-
   end
 
   module Linkable

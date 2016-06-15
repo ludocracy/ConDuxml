@@ -5,25 +5,22 @@ module ConDuxml
   module Mappable
     include Dita
 
-    def topicize(*args)
-      # TODO move to bin! and add actual test!
+    def to_map(targets)
+      # count levels
+      # assign to targets
+      # if targets.size < levels,
+      # if targets.size > levels, match top
+    end
+
+    # TODO currently returns topic, need to make it return map later!
+    def dita_map(*targets)
       t = Element.new('topic')
       t << Element.new('title')
-      t.title << args.first
+      t.title << targets.first if targets.any?
       t << Element.new('body')
       t[:id] = "topic#{t.object_id.to_s}"
-      args[1..-1].compact.each do |x| t.body << x end
-      Doc.new << t
-    end
-
-    def to_map
-
-    end
-
-    def to_dita
-      raise Exception unless respond_to?(:nodes)
-
-      topicize nodes
+      targets[1..-1].compact.each do |x| t.body << x end
+      t
     end
 
     def depth
