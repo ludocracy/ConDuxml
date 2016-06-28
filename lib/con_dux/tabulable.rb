@@ -1,7 +1,10 @@
+# Copyright (c) 2016 Freescale Semiconductor Inc.
+require 'ruby-dita'
+
 module ConDuxml
   module Tabulable
+    include Duxml
     include Enumerable
-    include ConDuxml
 
     class << self
       def initialize(nodes)
@@ -74,7 +77,7 @@ module ConDuxml
     # @param *cols [*[]] column information bound to key, each of which must match a header item
     def dita_table(pattern=nil, *cols)
       src_tbl = to_table(pattern)
-      t = Element.new('table')
+      t = Element.new('table').extend Dita
       cols.each do |c|
         t << Element.new('colspec')
         t.nodes.last[:colname] = c.name
