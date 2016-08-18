@@ -10,27 +10,21 @@ module ConDuxml
     include Instance
     include Enumerable
 
-    # reifies pattern by actually copying children and assigning each unique properties derived from iterator value
-    # TODO do we need argument?
-    def instantiate(meta=nil)
+    # @param block [block] each duplicated node is yielded to block if given
+    # @return [Array[Element]] flattened array of all duplicated Elements
+    def instantiate(&block)
       size_expr = size.respond_to?(:to_i) ? size.to_i : size.to_s
       if size_expr.is_a? Fixnum
-        iterator_index = 0
         new_children = []
-        kids = []
-        children.each do |kid| kids << kid.detached_subtree_copy end
-        remove_all!
-        size_expr.times do
-          i = Instance.new
-          i << Parameters.new(nil, iterator: iterator_index)
-          kids.each do |kid| i << kid.detached_subtree_copy end
-          i.rename name+iterator_index.to_s
-          new_children << i
-          iterator_index += 1
+        size_expr.times do |index|
+          nodes.each do |node|
+            new_child = block_given? ? yield(node.dclone, index) : node.dclone
+            new_children << new_child
+          end
         end
         new_children
       else
-        []
+        [self]
       end
     end # def instantiate
 

@@ -1,4 +1,4 @@
-require_relative '../lib/con_dux'
+require_relative '../lib/con_duxml'
 require 'test/unit'
 
 class Filler
@@ -17,10 +17,11 @@ class ConDuxTest < Test::Unit::TestCase
     load SAMPLE_FILE
   end
 
-  def test_read_directives
-    # TODO use split/merge on tabulable object pulled from design file
-    #
-    #
+  def test_transform
+    # test directives from file
+    # from memory
+    # embedded in source
+
   end
 
   def test_instantiate

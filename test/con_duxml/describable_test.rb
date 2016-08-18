@@ -1,4 +1,4 @@
-require_relative '../../lib/con_dux/describable'
+require_relative '../../lib/con_duxml/describable'
 require 'test/unit'
 require 'duxml'
 

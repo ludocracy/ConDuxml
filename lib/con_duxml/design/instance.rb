@@ -1,11 +1,12 @@
 # Copyright (c) 2016 Freescale Semiconductor Inc.
+require_relative '../../../lib/con_duxml/duxml_ext/element'
 
 module ConDuxml
   # Instances are copies of another XML element with a distinct set of parameter values
   # like Objects in relation to a Class
   module Instance
     def ref=(target)
-      raise Exception unless target.respond_to?(:nodes)
+      raise Exception unless target.respond_to?(:nodes) or File.exists?(target)
       @ref = target
     end
 
@@ -20,7 +21,7 @@ module ConDuxml
       if target.nil?
         new_kids = nodes
       else
-        new_kids << target.clone
+        new_kids << target.dclone
       end
       new_kids
     end # def instantiate

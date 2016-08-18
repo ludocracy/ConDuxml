@@ -5,6 +5,7 @@ module ConDuxml
   module Tabulable
     include Duxml
     include Enumerable
+    include Dita
 
     class << self
       def initialize(nodes)
@@ -18,42 +19,40 @@ module ConDuxml
       yield nodes.each
     end
 
-    # @param pattern [Hash, String, Symbol, Array] pattern used to filter attributes to output
+    # takes self and renders as array of attribute values
+    # generally applies to any object that is a member of a collection of similar objects with similar
+    # attributes and/or node structure
+    # self can be an XML node
+    # filter pattern must be in form that can be safely passed via XML arguments
+    # valid formats are:
+    # Hash - where the keys are the names of attributes and values are transforms to apply to attr value
+    # Array - where each element, in order is the name of the desired attributes/children
+    # String - space-separated list of attr names
+    # if no pattern is provided, defaults to no filter
+    # @param pattern [*several_variants] pattern used to filter attributes to output
     # @return [Array] array of values of attributes that pass filter
     def to_row(pattern=nil)
-      entries = []
-      nodes.each do |n|
-        if n.nodes.size == 1 && nodes.first.is_a?(String) && !matches?(n.name, pattern)
-          entries << n.nodes.first
+      if pattern[:to_row]
+        pattern[:to_row].split(' ').collect do |p|
+          result = case
+                     when attributes[p] then attributes[p.to_sym]
+                     when find(p).is_a?(Element) then find(p).text
+                     else eval(p)
+                   end
+          result.to_s
         end
       end
-      if instance_variable_defined?(:@attributes)
-        attributes.each do |k, v| entries << v unless matches?(k, pattern) end
-      else
-        instance_variables.each do |var|
-          entries << instance_variable_get(var) unless matches?(var, pattern)
-        end
-      end
-      entries
     end
 
-    # @param pattern [Hash, String, Symbol, Array] @see #to_row @param
+    # @param pattern [String, Array]
     # @return [Array] array of names of attributes that pass filter
-    def to_header(pattern=nil)
-      headings = []
-      nodes.each do |n|
-        if n.nodes.size == 1 && n.nodes.first.is_a?(String) && !matches?(n.name, pattern)
-          headings << n.name
-        end
+    def to_header(pattern)
+      case pattern.class
+        when String   then separate
+        when Array    then pattern
+        else
+          nil
       end
-      if instance_variable_defined?(:@attributes)
-        attributes.each do |k, v| headings << k unless matches?(k, pattern) end
-      else
-        instance_variables.each do |var|
-          headings << var.to_s[1..-1] unless matches?(var, pattern)
-        end
-      end
-      headings
     end
 
     # @param pattern [Hash, String, Symbol, Array] @see #to_row @param
@@ -75,9 +74,12 @@ module ConDuxml
     end
 
     # @param *cols [*[]] column information bound to key, each of which must match a header item
-    def dita_table(pattern=nil, *cols)
+    def dita_table(pattern=nil, cols)
+      load Doc.new
       src_tbl = to_table(pattern)
-      t = Element.new('table').extend Dita
+      t = Element.new('table')
+      doc << t
+
       cols.each do |c|
         t << Element.new('colspec')
         t.nodes.last[:colname] = c.name
@@ -114,6 +116,10 @@ module ConDuxml
       var = attr.to_s[0] == '@' ? attr.to_s[1..-1] : attr.to_s
       pattern = pattern.keys.collect do |k| k.to_s end if pattern.is_a?(Hash)
       var=='nodes' || pattern && var.match(pattern.to_s).to_s == var
+    end
+
+    def space_separated_strings(str)
+      # should identify groups of space-separated strings
     end
   end # module Tabulable
 end

@@ -1,4 +1,4 @@
-require_relative '../../lib/con_dux/mappable'
+require_relative '../../lib/con_duxml/mappable'
 require_relative '../../lib/duxml_ext/element'
 require 'test/unit'
 

@@ -1,4 +1,4 @@
-require_relative '../../lib/con_dux/tabulable'
+require_relative '../../lib/con_duxml/tabulable'
 require 'test/unit'
 
 include ConDuxml
@@ -35,13 +35,16 @@ class TabulableTest < Test::Unit::TestCase
     h = d.nodes.first.to_header('var0')
     assert_equal ['var1'], h
 
-    h = d.nodes.first.to_header(['variable 0', 'variable 1'])
+    h = d.nodes.first.to_header(var0: 'variable 0', var1: 'variable 1')
     assert_equal ['variable 0', 'variable 1'], h
   end
 
   def test_to_row
-    r = d.nodes.first.to_row('rows')
+    r = d.nodes.first.to_row
     assert_equal ["var0's value", "var1's value"], r
+
+    r = d.nodes.first.to_row(:var0)
+    assert_equal ["var0's value"], r
   end
 
   def test_to_table
