@@ -15,11 +15,23 @@ class ElementTest < Test::Unit::TestCase
 
   attr_reader :e
 
+  def test_text?
+    e[0] << 'text'
+    e << 'more text'
+    assert_equal false, e.text?
+    assert_equal true, e[0].text?
+  end
+
   def test_sclone
     e[:attr] = 'val'
     e_clone = e.sclone
     assert_not_same e, e_clone
     assert_equal '<test attr="val"/>', e_clone.to_s
+
+
+    e[0] << 'text'
+    e_child_clone = e[0].sclone
+    assert_equal '<child attr="duck">text</child>', e_child_clone.to_s
   end
 
   def test_dclone

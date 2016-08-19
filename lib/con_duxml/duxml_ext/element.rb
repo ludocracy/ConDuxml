@@ -17,7 +17,14 @@ module Duxml
 
     # @return [Element] shallow clone of this element, with all attributes and children only if none are Elements
     def sclone
-      Element.new(name, attributes) << (nodes.all? do |n| n.text? end ? nodes : [])
+      stub = Element.new(name, attributes)
+      stub << nodes if text?
+      stub
+    end
+
+    # @return [true, false] true if all child nodes are text only; false if any child nodes are XML
+    def text?
+      nodes.all? do |node| node.is_a?(String) end
     end
 
     # @param &block [Block] calls Enumerable#chunk on this element's nodes to group them by result of &block
