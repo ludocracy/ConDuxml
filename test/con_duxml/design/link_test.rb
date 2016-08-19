@@ -23,25 +23,32 @@ class LinkTest < Test::Unit::TestCase
     # test
     e = Element.new 'target'
     d.link.ref = e
+
     r = d.link.instantiate
-    assert_same
+    dok = Doc.new << d
+    # TODO
+    # execute split/merges and removes on target
+    # check for updates to dok.history via link
+    assert_same e, r
   end
 
   def test_ref=
     e = Element.new 'target'
     d.link.ref = e
-    assert_equal d.object_id, e.linked_by.first.object_id
+    assert_same e, d.link.ref
   end
 
   def test_linked_by
-
+    e = Element.new 'target'
+    d.link.ref = e
+    assert_same d, e.linked_by.first
   end
 
   def test_split
     e = Element.new 'target'
     d << Element.new('link')
     d.link.ref = e
-    splits = e.split
+    splits = e.split do |chunk|  end # TODO
     assert_equal '', splits.first
     assert_equal '', splits.second
   end

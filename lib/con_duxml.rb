@@ -7,17 +7,28 @@ module ConDuxml
 
   # hash where each key is concatenation of each instantiation of @doc and values are the Doc instance permutations returned by #instantiate
   @instances
-  # double-key hash containing every result of #transform; keys are arguments to transform and key of instance used to create it
+  # double-key hash containing every result of #transform; keys concatenation of source doc's #object_id and transform doc's #object_id
   @transforms
 
-  # @param source [String, Doc] XML document or path to one that will provide content to be transformed; source file can
+  # @param transforms [String, Doc] transforms file or path to one
+  # @param doc_or_path [String, Doc] XML document or path to one that will provide content to be transformed; source file can
   #   also contain directives or links to them
-  # @param directives [TransformClass, String, Doc] either a transform object or directives file or path to one; this
-  #   argument is optional and the user can provide a block instead
-  # @param block [block] if block given, each node of source is yielded to user-provided transform code
   # @return [Doc] result of transform; automatically hashed into @transforms
-  def transform(source, directives=nil, &block)
+  def transform(transforms, doc_or_path=nil)
+    transformed = Doc.new
+    @doc = doc_or_path.is_a?(Doc) ? doc_or_path.root : sax(doc_or_path)
+    transformed.grammar = transforms[:grammar] if transforms[:grammar]
+    cursors = [transformed]
+    transforms.traverse do |node|
+      cursor = cursors.shift
+      transformed_node = node.activate doc
+      cursor << transformed_node
+      if node.nodes.any?
+        cursors << transformed_node
+      end
+    end
 
+    @transforms[doc.object_id+transforms.object_id] = transformed
   end
 
   # instantiation takes a static design file and constructs a dynamic model by identifying certain keyword elements,
@@ -29,9 +40,8 @@ module ConDuxml
   # <link> - referenced XML file or nodes provides namespace, contents, and notification of changes to any direct children of this node @see ConDuxml::Link
   #
   # @param source [String, Doc] XML document or path to one that will provide design content
-  # @param block [block] yields each node of source to block where user can define behaviors for each node
   # @return [Doc] resulting XML document
-  def instantiate(source, &block)
+  def instantiate(source)
 
   end
 end

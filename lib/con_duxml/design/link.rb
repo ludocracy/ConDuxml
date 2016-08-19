@@ -1,7 +1,6 @@
 # Copyright (c) 2016 Freescale Semiconductor Inc.
 
 require File.expand_path(File.dirname(__FILE__) + '/instance')
-require File.expand_path(File.dirname(__FILE__) + '/../linkable')
 
 module ConDuxml
   # links are effectively aliases for an XML node that can exist anywhere outside of that node
@@ -38,6 +37,7 @@ module ConDuxml
       bool.nil? ? @strict_or_false ||= true : @strict_or_false = bool
     end
 
+    # TODO rewrite this!!! at most primitive, updates need to happen when link targets split/merge or are removed
     # @param type [Symbol] category i.e. class symbol of changes/errors reported
     # @param *args [*several_variants] information needed to accurately log the event; varies by change/error class
     def update(type, *args)

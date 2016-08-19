@@ -15,6 +15,13 @@ class ElementTest < Test::Unit::TestCase
 
   attr_reader :e
 
+  def test_sclone
+    e[:attr] = 'val'
+    e_clone = e.sclone
+    assert_not_same e, e_clone
+    assert_equal '<test attr="val"/>', e_clone.to_s
+  end
+
   def test_dclone
     e_clone = e.dclone
     assert_not_same e, e_clone
@@ -24,8 +31,10 @@ class ElementTest < Test::Unit::TestCase
     assert_not_same e[2], e_clone[2]
   end
 
+  def test_
 
-  attr_reader :e
+  end
+
 
   def test_split
     ans = e.split do |child| child[:attr] end

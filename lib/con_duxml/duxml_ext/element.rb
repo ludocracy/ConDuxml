@@ -1,7 +1,10 @@
 require 'duxml'
+require_relative 'linkable'
 
 module Duxml
   module ElementGuts
+    include Linkable
+
     # @return [Element] deep clone of this element, its attributes and its recursively cloned children
     def dclone
       sub_tree = nil
@@ -12,13 +15,21 @@ module Duxml
       sub_tree
     end
 
+    # @return [Element] shallow clone of this element, with all attributes and children only if none are Elements
+    def sclone
+      Element.new(name, attributes) << (nodes.all? do |n| n.text? end ? nodes : [])
+    end
+
     # @param &block [Block] calls Enumerable#chunk on this element's nodes to group them by result of &block
     # @return [Element] a duplicate element of this node initialized with each subset's nodes
     def split(&block)
       chunks = nodes.chunk(&block)
-      chunks.collect do |type, nodes|
+      new_nodes = chunks.collect do |type, nodes|
         self.class.new(name, nodes)
       end
+
+      report :Split, new_nodes
+      new_nodes
     end
 
     # @param pattern [several_variants] if String/Symbol or array of such, differences between merged entities' instance vars matching pattern are masked; if pattern is a hash, the key is the instance var, and the value becomes the new value for the merged entity
@@ -40,6 +51,9 @@ module Duxml
           self_clone << chunk
         end
       end # chunks.each do |type, nodes|
+
+      report :Merge, self_clone
+
       self_clone
     end # def merge(pattern, &block)
 
