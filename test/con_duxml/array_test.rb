@@ -1,4 +1,4 @@
-require_relative '../../../lib/con_duxml/design/array'
+require_relative '../../lib/con_duxml/array'
 require 'test/unit'
 
 class ArrayTest < Test::Unit::TestCase

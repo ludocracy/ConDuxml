@@ -1,7 +1,6 @@
 require_relative '../../lib/con_duxml/transform'
 require 'test/unit'
 require_relative '../../lib/con_duxml/duxml_ext/element'
-include ConDuxml
 
 
 module Ipxact
@@ -19,8 +18,7 @@ class TransformTest < Test::Unit::TestCase
 
   def setup
     load '../../xml/dma.xml'
-    @t = Element.new('transform')
-    @t[:ns] = 'ipxact'
+    @t = Element.new('transform', {ns: 'ipxact'})
   end
 
   attr_accessor :t

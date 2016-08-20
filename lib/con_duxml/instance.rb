@@ -1,5 +1,5 @@
 # Copyright (c) 2016 Freescale Semiconductor Inc.
-require_relative '../../../lib/con_duxml/duxml_ext/element'
+require_relative 'duxml_ext/element'
 
 module ConDuxml
   # Instances are copies of another XML element with a distinct set of parameter values

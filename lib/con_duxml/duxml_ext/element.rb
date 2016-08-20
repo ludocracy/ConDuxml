@@ -5,28 +5,6 @@ module Duxml
   module ElementGuts
     include Linkable
 
-    # @return [Element] deep clone of this element, its attributes and its recursively cloned children
-    def dclone
-      sub_tree = nil
-      traverse do |node|
-        copy = Element.new(node.name, node.attributes)
-        sub_tree ? (sub_tree << copy) : (sub_tree = copy)
-      end
-      sub_tree
-    end
-
-    # @return [Element] shallow clone of this element, with all attributes and children only if none are Elements
-    def sclone
-      stub = Element.new(name, attributes)
-      stub << nodes if text?
-      stub
-    end
-
-    # @return [true, false] true if all child nodes are text only; false if any child nodes are XML
-    def text?
-      nodes.all? do |node| node.is_a?(String) end
-    end
-
     # @param &block [Block] calls Enumerable#chunk on this element's nodes to group them by result of &block
     # @return [Element] a duplicate element of this node initialized with each subset's nodes
     def split(&block)

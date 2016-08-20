@@ -1,5 +1,8 @@
 require_relative '../lib/con_duxml'
 require 'test/unit'
+require 'ruby-dita'
+
+include ConDuxml
 
 class Filler
   def initialize
@@ -7,26 +10,38 @@ class Filler
   end
   attr_accessor :nodes
 end
-SAMPLE_FILE = File.expand_path(File.dirname(__FILE__) + '/../xml/test.xml')
+SAMPLE_FILE = File.expand_path(File.dirname(__FILE__) + '/../xml/dma.xml')
 
-class ConDuxTest < Test::Unit::TestCase
-  include ConDuxml
-  include Duxml
+class ConDuxmlTest < Test::Unit::TestCase
 
   def setup
     load SAMPLE_FILE
   end
 
-  def test_transform
-    # test directives from file
-    # from memory
-    # embedded in source
+  def test_transform_simple_tree
+    transform File.expand_path(File.dirname(__FILE__) + '/../xml/transforms/simple_tree.xml')
 
   end
 
-  def test_instantiate
-    i = instantiate!
-    #assert_equal 'table', i.topic.body.nodes[0].name
-    #assert_equal 'table', i.topic.body.nodes[1].name
+  def test_transform_nested_methods
+    # under each method we need to test two transform types:
+    #   - to_table to ensure correct content layout
+    #   - split/merge of linked content to ensure correct content selection
+  end
+
+  def test_instantiate_design
+
+  end
+
+  def test_instantiate_transforms
+
+  end
+
+  def test_transform_instantiated_design
+
+  end
+
+  def test_inst_xform_inst_design
+
   end
 end

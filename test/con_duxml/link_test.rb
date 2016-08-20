@@ -1,4 +1,4 @@
-require_relative '../../../lib/con_duxml/design/link'
+require_relative '../../lib/con_duxml/link'
 require 'test/unit'
 
 include ConDuxml

@@ -1,34 +1,44 @@
 # Copyright (c) 2016 Freescale Semiconductor Inc.
-require 'duxml'
-require_relative 'con_duxml/designable'
+%w(transform array instance link).each do |f| require_relative "con_duxml/#{f}" end
 
 module ConDuxml
   include Duxml
+  include Transform
 
   # hash where each key is concatenation of each instantiation of @doc and values are the Doc instance permutations returned by #instantiate
   @instances
   # double-key hash containing every result of #transform; keys concatenation of source doc's #object_id and transform doc's #object_id
-  @transforms
+  @transformations
 
   # @param transforms [String, Doc] transforms file or path to one
   # @param doc_or_path [String, Doc] XML document or path to one that will provide content to be transformed; source file can
   #   also contain directives or links to them
   # @return [Doc] result of transform; automatically hashed into @transforms
   def transform(transforms, doc_or_path=nil)
+    transforms = case transforms
+                   when Doc then transforms.root
+                   when Element then transforms
+                   when String then sax(transforms).root
+                   else
+                 end
     transformed = Doc.new
-    @doc = doc_or_path.is_a?(Doc) ? doc_or_path.root : sax(doc_or_path)
+    @doc = case doc_or_path
+             when Doc then doc_or_path
+             when String then sax doc_or_path
+             else doc
+           end
     transformed.grammar = transforms[:grammar] if transforms[:grammar]
     cursors = [transformed]
     transforms.traverse do |node|
       cursor = cursors.shift
-      transformed_node = node.activate doc
+      transformed_node = activate(node, doc)
       cursor << transformed_node
       if node.nodes.any?
         cursors << transformed_node
       end
     end
 
-    @transforms[doc.object_id+transforms.object_id] = transformed
+    @transformations[doc.object_id+transforms.object_id] = transformed
   end
 
   # instantiation takes a static design file and constructs a dynamic model by identifying certain keyword elements,
@@ -44,4 +54,5 @@ module ConDuxml
   def instantiate(source)
 
   end
+
 end

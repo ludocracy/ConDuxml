@@ -1,0 +1,6 @@
+<transform grammar="Dita.grammar" subject="component.memoryMaps.memoryMap" name_space="ipxact">
+    <dita:topic target="addressBlock" arg0="name">
+        <dita:table arg0="register" arg1="'Offset' => address[:offset], 'Name' => dita_descr, 'Reset Value' => reset_value[:value][2..-1]"/>
+      </dita:topic>
+    <dita:table target="addressBlock.register" arg0="field" arg1="'Field' => name, 'Index' => index, 'Width' => width"/>
+</transform>

@@ -1,4 +1,4 @@
-require_relative '../../lib/con_duxml/tabulable'
+require_relative '../../../lib/con_duxml/duxml_ext/tabulable'
 require 'test/unit'
 
 include ConDuxml
@@ -50,14 +50,5 @@ class TabulableTest < Test::Unit::TestCase
   def test_to_table
     t = d.to_table('rows')
     assert_equal [['var0', 'var1'], ["var0's value", "var1's value"], ["var0's value", "var1's value"]], t
-  end
-
-  def test_dita_table
-    x = d.dita_table
-    answer = %(<table><tgroup cols="2"><thead><row><entry>var0</entry><entry>var1</entry></row></thead><tbody><row><entry>var0's value</entry><entry>var1's value</entry></row><row><entry>var0's value</entry><entry>var1's value</entry></row></tbody></tgroup></table>)
-    assert_equal answer, x.to_s
-    assert_raise(Exception, '') do
-      x << Element.new('bogus')
-    end
   end
 end
