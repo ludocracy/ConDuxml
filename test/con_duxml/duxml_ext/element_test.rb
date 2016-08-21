@@ -1,9 +1,11 @@
-require_relative '../../lib/duxml_ext/element'
 require 'test/unit'
+require_relative  '../../../lib/con_duxml/duxml_ext/element'
+
+include Duxml
 
 class ElementTest < Test::Unit::TestCase
-  include ConDuxml
   def setup
+
     @e = Element.new('test')
     3.times do @e << Element.new('child') end
     e.nodes[0][:attr] = 'duck'
