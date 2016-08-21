@@ -1,6 +1,6 @@
 require_relative '../lib/con_duxml'
 require 'test/unit'
-require 'ruby-dita'
+require_relative '../../Ruby-Dita/lib/ruby-dita'
 
 include ConDuxml
 

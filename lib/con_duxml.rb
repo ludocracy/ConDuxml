@@ -34,10 +34,9 @@ module ConDuxml
     @src_ns = transforms[:src_ns]
     source = doc.locate(add_name_space_prefix(transforms[:source])).first
     output.grammar = transforms[:grammar] if transforms[:grammar]
-    output << activate(transforms.first, source)
-
-
-
+    a = activate(transforms.first, source).first
+    output << a
+    @transformations ||= {}
     @transformations[doc.object_id+transforms.object_id] = output
   end
 
