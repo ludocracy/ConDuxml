@@ -1,7 +1,7 @@
 require_relative '../../lib/con_duxml/transform'
 require 'test/unit'
 require_relative '../../lib/con_duxml/duxml_ext/element'
-
+require 'ruby-dita'
 
 module Ipxact
   module MemoryMap
@@ -12,39 +12,42 @@ module Ipxact
 end
 
 class TransformTest < Test::Unit::TestCase
+  include Transform
   include Duxml
-
-  XFORM_PATH = '../../xml/transforms/from_root.xml'
 
   def setup
     load '../../xml/dma.xml'
-    @t = Element.new('transform', {ns: 'ipxact'})
+    @src_ns = 'ipxact'
+    topic = Element.new('dita:topic', {source: 'component/memoryMaps/memoryMap', arg0: 'name/*'})
+    @xform = topic
+    @source = doc
   end
 
-  attr_accessor :t
+  attr_reader :topic, :src_ns, :xform
 
   def teardown
     # Do nothing
   end
 
-  def test_activate_method_no_target
-    t[:method] = 'sclone'
-    result = t.activate(doc)
-    assert_equal 'ipxact:component', result[0].name
-    assert_equal 'http://www.w3.org/2001/XMLSchema-instance', result[0]['xmlns:xsi']
+  def test_get_sources
+    sources = get_sources
+    assert_equal 1, sources.size
+    source_str = sources.collect do |source| source.sclone.to_s end.join
+    assert_equal '<ipxact:memoryMap/>', source_str
   end
 
-  def test_activate_method_on_target
-    t[:method] = 'sclone'
-    t[:target] = 'component/memoryMaps/memoryMap'
-    result = t.activate(doc)
-    assert_equal '<ipxact:memoryMap/>', result[0].to_s
+  def test_get_method
+    m = get_method
+    assert_equal '#<Method: Dita.topic>', m.to_s
   end
 
-  def test_activate_external_method
-    t[:method] = 'pop'
-    t[:target] = 'component/memoryMaps/memoryMap'
-    result = t.activate(doc)
-    assert_equal '<pop>!!!</pop>', result[0].to_s
+  def test_get_args
+    args = get_args(get_sources.first)
+    assert_equal 'ambaAPB', args.first
+  end
+
+  def test_activate
+    t = activate(xform, doc)
+    assert_match /<topic id="topic[0-9]{8}"><title>ambaAPB<\/title><\/topic>/, t.first.to_s
   end
 end
