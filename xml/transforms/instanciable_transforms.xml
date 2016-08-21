@@ -1,5 +1,0 @@
-<transforms grammar="Dita.grammar" subject="component.memoryMaps.memoryMap" name_space="ipxact">
-    <transform to_table="">
-        <split args=""/>
-    </transform>
-</transforms>

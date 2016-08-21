@@ -12,8 +12,8 @@ module Transform
   # @return [Array[Element]] transformed content; always an array of nodes, even if just one
   def activate(xform, _source)
     @source = _source
-    get_sources(xform).collect do |subj|
-      args = get_args(xform, subj)
+    get_sources(xform).collect do |src|
+      args = get_args(xform, src)
       get_method(xform).call(*args)
     end
   end
