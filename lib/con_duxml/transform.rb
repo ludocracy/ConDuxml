@@ -7,21 +7,22 @@ module Transform
 
   attr_reader :xform, :source
 
-  # @param _xform [Element] transform element
+  # @param xform [Element] transform element
   # @param _source [Element] XML xform containing content to be transformed
   # @return [Array[Element]] transformed content; always an array of nodes, even if just one
-  def activate(_xform, _source)
-    @xform, @source = _xform, _source
-    get_sources.collect do |subj|
-      args = get_args(subj)
-      get_method.call(*get_args(subj))
+  def activate(xform, _source)
+    @source = _source
+    get_sources(xform).collect do |src|
+      args = get_args(xform, src)
+      get_method(xform).call(*args)
     end
   end
 
+  # @param xform [Element] transform element
   # @return [Array] array of elements that match @target, which must be a '/'-separated string
   #   if transform element has any children that may need the same source target, target_stack.last remains
   #   if transform is a leaf, target_stack is popped
-  def get_sources
+  def get_sources(xform)
     if xform[:source]
       source.locate add_name_space_prefix xform[:source]
     else
@@ -29,8 +30,9 @@ module Transform
     end
   end
 
+  # @param xform [Element] transform element
   # @return [Method] resolves reference to actual transform method
-  def get_method
+  def get_method(xform)
     words = xform.name.split(':').reverse
     method_name = words[0].to_sym
     maudule = Module
@@ -38,9 +40,10 @@ module Transform
     maudule.method(method_name)
   end
 
+  # @param xform [Element] transform element
   # @param subj [Element] source XML Element
   # @return [Array[String, Element]] string returned by self[:args] is separated by ';' into correctly formatted argument values for transform method
-  def get_args(subj)
+  def get_args(xform, subj)
     args = xform.attributes.keys.sort.collect do |attr|
       if attr.to_s.match(/arg[0-9]/)
         if xform[attr].include?(',')
@@ -56,11 +59,10 @@ module Transform
         end
       end
     end.compact
-    args
-    xform.nodes.each do |child|
-      a = activate(child, subj)
-      args << a
+    children = xform.nodes.collect do |child|
+      activate(child, subj)
     end
+    args << children.flatten if children.any?
     args
   end
 

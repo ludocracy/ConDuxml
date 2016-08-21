@@ -1,26 +1,30 @@
 require_relative '../lib/con_duxml'
 require 'test/unit'
-require 'ruby-dita'
+require_relative '../../Ruby-Dita/lib/ruby-dita'
 
 include ConDuxml
 
-class Filler
-  def initialize
-    @var0, @var1, @nodes = "var0's value", "var1's value", []
+module AddressBlock
+  def boo(str)
+    "base address: #{baseAddress.text}. also #{str}"
   end
-  attr_accessor :nodes
 end
 SAMPLE_FILE = File.expand_path(File.dirname(__FILE__) + '/../xml/dma.xml')
 
 class ConDuxmlTest < Test::Unit::TestCase
-
   def setup
     load SAMPLE_FILE
   end
 
   def test_transform_simple_tree
-    transform File.expand_path(File.dirname(__FILE__) + '/../xml/transforms/simple_tree.xml')
+    t = transform File.expand_path(File.dirname(__FILE__) + '/../xml/transforms/simple_tree.xml')
 
+  end
+
+  def test_transform_external_method
+    omit
+    t = transform File.expand_path(File.dirname(__FILE__) + '/../xml/transforms/object_method.xml')
+    assert_equal %(), t.root.to_s
   end
 
   def test_transform_nested_methods
