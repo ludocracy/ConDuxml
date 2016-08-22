@@ -3,16 +3,6 @@ require 'test/unit'
 require_relative '../../lib/con_duxml/duxml_ext/element'
 require 'ruby-dita'
 
-module Ipxact
-    def pop(i)
-      i.to_i.times do
-        s ||= ''
-        s << '!'
-      end
-      Duxml::Element.new('pop', ["#{name.text}#{s}"])
-    end
-end
-
 class TransformTest < Test::Unit::TestCase
   include Transform
   include Duxml
@@ -50,5 +40,9 @@ class TransformTest < Test::Unit::TestCase
   def test_activate
     t = activate(xform, source)
     assert_match /<topic id="topic[0-9]{8}"><title>ambaAPB<\/title><\/topic>/, t.first.to_s
+  end
+
+  def test_object_method
+
   end
 end

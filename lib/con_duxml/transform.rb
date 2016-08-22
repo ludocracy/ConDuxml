@@ -1,11 +1,30 @@
 # Copyright (c) 2016 Freescale Semiconductor Inc.
+require 'duxml'
+require_relative 'duxml_ext/transform_class'
+include Duxml
 
 # helper methods for converting transform elements into code
 module Transform
-  @xform
+  include Observable
   @source
 
-  attr_reader :xform, :source
+  attr_reader :source
+
+  # @param node [Element] XML node from transform output
+  # @return [TransformClass] transform event object from output Doc's history
+  def find_xform_event(node)
+    @output.history #TODO find transform whose outputs include given node
+  end
+
+  def find_transform(node)
+    find_xform_event(node).instructions
+  end
+
+  # @param node [Element] XML node from transform output
+  # @return [Element] XML node that provided content for transformation i.e. source
+  def find_source(node)
+    find_xform_event(node).input
+  end
 
   # @param xform [Element] transform element
   # @param _source [Element] XML xform containing content to be transformed
@@ -14,7 +33,11 @@ module Transform
     @source = _source
     get_sources(xform).collect do |src|
       args = get_args(xform, src)
-      get_method(xform).call(*args)
+      output = get_method(xform).call(*args)
+      changed
+      notify_observers(:Transform, xform, src, output)
+      changed false
+      output
     end
   end
 
@@ -35,7 +58,7 @@ module Transform
   def get_method(xform)
     words = xform.name.split(':').reverse
     method_name = words[0].to_sym
-    maudule = Module
+    maudule = self
     maudule = Module.const_get(words[1].constantize) if words[1] and Module.const_defined?(words[1].constantize)
     maudule.method(method_name)
   end
@@ -48,11 +71,7 @@ module Transform
       if attr.to_s.match(/arg[0-9]/)
         if xform[attr].include?(',')
           xform[attr].split(',').collect do |s|
-            if s.match(/'[\s\w]+'/)
-              $MATCH.strip[1..-2]
-            else
-              subj.locate(add_name_space_prefix s.strip).first
-            end
+            s.match(/'[\s\w]+'/) ? $MATCH.strip[1..-2] : subj.locate(add_name_space_prefix s.strip).first
           end
         else
           subj.locate(add_name_space_prefix xform[attr]).first

@@ -5,10 +5,6 @@ module ConDuxml
   include Duxml
   include Transform
 
-  # hash where each key is concatenation of each instantiation of @doc and values are the Doc instance permutations returned by #instantiate
-  @instances
-  # double-key hash containing every result of #transform; keys concatenation of source doc's #object_id and transform doc's #object_id
-  @transformations
   # namespace prefix for source file
   @src_ns
 
@@ -19,7 +15,7 @@ module ConDuxml
   #   also contain directives or links to them
   # @return [Doc] result of transform; automatically hashed into @transforms
   def transform(transforms, doc_or_path=nil)
-    output = Doc.new
+    @output = Doc.new
     transforms = case transforms
                    when Doc then transforms.root
                    when Element then transforms
@@ -33,11 +29,10 @@ module ConDuxml
            end
     @src_ns = transforms[:src_ns]
     source = doc.locate(add_name_space_prefix(transforms[:source])).first
-    output.grammar = transforms[:grammar] if transforms[:grammar]
+    @output.grammar = transforms[:grammar] if transforms[:grammar]
     a = activate(transforms.first, source).first
-    output << a
-    @transformations ||= {}
-    @transformations[doc.object_id+transforms.object_id] = output
+    add_observer @output.history
+    @output << a
   end
 
   # instantiation takes a static design file and constructs a dynamic model by identifying certain keyword elements,

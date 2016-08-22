@@ -1,51 +1,25 @@
 require_relative '../lib/con_duxml'
 require 'test/unit'
-require_relative '../../Ruby-Dita/lib/ruby-dita'
+require 'ruby-dita'
 
 include ConDuxml
 
-module AddressBlock
-  def boo(str)
-    "base address: #{baseAddress.text}. also #{str}"
-  end
-end
 SAMPLE_FILE = File.expand_path(File.dirname(__FILE__) + '/../xml/dma.xml')
-
+SIMPLE_TREE = File.expand_path(File.dirname(__FILE__) + '/../xml/transforms/simple_tree.xml')
+SIMPLE_TREE_OUT = File.expand_path(File.dirname(__FILE__) + '/../xml/transforms/answers/simple_tree.dita')
 class ConDuxmlTest < Test::Unit::TestCase
+  include Duxml
   def setup
-    load SAMPLE_FILE
+
   end
 
   def test_transform_simple_tree
-    t = transform File.expand_path(File.dirname(__FILE__) + '/../xml/transforms/simple_tree.xml')
+    t = transform SIMPLE_TREE, SAMPLE_FILE
+    load SIMPLE_TREE_OUT
+    assert_equal doc.root[0].to_s, t.root[0].to_s
+    assert_not_same doc, t
 
-  end
-
-  def test_transform_external_method
-    omit
-    t = transform File.expand_path(File.dirname(__FILE__) + '/../xml/transforms/object_method.xml')
-    assert_equal %(), t.root.to_s
-  end
-
-  def test_transform_nested_methods
-    # under each method we need to test two transform types:
-    #   - to_table to ensure correct content layout
-    #   - split/merge of linked content to ensure correct content selection
-  end
-
-  def test_instantiate_design
-
-  end
-
-  def test_instantiate_transforms
-
-  end
-
-  def test_transform_instantiated_design
-
-  end
-
-  def test_inst_xform_inst_design
-
+    # saving output for demo purposes
+    save 'simple_tree.dita', t
   end
 end
