@@ -1,0 +1,5 @@
+<transform source="component/memoryMaps/memoryMap" src_ns="ipxact">
+  <element arg0="'element'">
+    <content arg="name"/>
+  </element>
+</transform>
