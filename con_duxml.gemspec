@@ -1,7 +1,7 @@
 # coding: utf-8
 Gem::Specification.new do |spec|
   spec.name          = "con_duxml"
-  spec.version       = "0.2.0"
+  spec.version       = "0.2.3"
   spec.summary       = "Construct Universal XML"
   spec.authors       = ["Peter Kong"]
   spec.email         = ["peter.kong@nxp.com"]
