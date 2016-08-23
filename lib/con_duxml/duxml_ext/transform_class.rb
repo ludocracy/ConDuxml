@@ -1,3 +1,4 @@
+# Copyright (c) 2016 Freescale Semiconductor Inc.
 require 'duxml/meta/history/change'
 
 include Duxml
@@ -13,5 +14,10 @@ class TransformClass < ChangeClass
   # @return [String] verbal description of transform event
   def description
     "#{output.description} created from #{input.description} by #{instructions.description}"
+  end
+
+  # @return [false] required to prevent grammar from attempting to validate transform
+  def error?
+    false
   end
 end

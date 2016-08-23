@@ -6,8 +6,9 @@ include Duxml
 
 # All public methods can be invoked by a transform element; please hide methods you don't want users to invoke in Private
 module Transform
-  include Observable
+  private
   include Private
+  public
 
   # most recent XML node from which content has been taken; for constructing relative paths
   @source

@@ -30,8 +30,8 @@ module ConDuxml
     @src_ns = transforms[:src_ns]
     source = doc.locate(add_name_space_prefix(transforms[:source])).first
     @output.grammar = transforms[:grammar] if transforms[:grammar]
-    a = activate(transforms.first, source).first
     add_observer @output.history
+    a = activate(transforms.first, source).first
     @output << a
   end
 

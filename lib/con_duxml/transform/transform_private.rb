@@ -1,19 +1,19 @@
 # Copyright (c) 2016 Freescale Semiconductor Inc.
+require 'observer'
 
 # Private is where methods should go that you DO NOT want invoked by a transform file!
 module Private
-  private
+  include Observable
 
   # @param xform [Element] transform element
-  # @param _source [Element] XML xform containing content to be transformed
+  # @param src [Element] XML xform containing content to be transformed
   # @return [Array[Element]] transformed content; always an array of nodes, even if just one
-  def activate(xform, _source)
-    @source = _source
+  def activate(xform, src)
+    @source = src
     get_sources(xform).collect do |src|
       args = get_args(xform, src)
       output = get_method(xform).call(*args)
       changed
-      m = methods
       notify_observers(:Transform, xform, src, output)
       changed false
       output
@@ -47,31 +47,55 @@ module Private
   end
 
   # @param xform [Element] transform element
-  # @param subj [Element] source XML Element
+  # @param src [Element] source XML Element
   # @return [Array[String, Element]] string returned by self[:args] is separated by ';' into correctly formatted argument values for transform method
-  def get_args(xform, subj)
+  def get_args(xform, src)
     args = xform.attributes.keys.sort.collect do |attr|
       if attr.to_s.match(/arg[0-9]*/)
-        if xform[attr].include?(',')
-          xform[attr].split(',').collect do |s|
-            s.match(/'[\s\w]+'/) ? $MATCH.strip[1..-2] : subj.locate(add_name_space_prefix s.strip).first
-          end
-        elsif xform[attr].include?('/')
-          subj.locate(add_name_space_prefix xform[attr]).first
-        elsif xform[attr].match(/'[\s\w]+'/)
-          $MATCH.strip[1..-2]
-        else
-          targets = subj.locate(xform[attr])
-          targets.empty? ? xform[attr] : targets
+        case(arg_str = xform[attr].strip)
+          when /,/              then separate_enumerables(arg_str, src)
+          when /^([\w]+): (\S.*)$/, /^([\S]+) => (\S.*)$/ then {$1.to_sym => normalize_arg($2, src)}
+            when /^'(.+)' => (.+)$/ then {$1 => normalize_arg($2, src)}
+          when /\//             then src.locate(add_name_space_prefix arg_str).first
+          when /^'([\s\w]+)'$/    then $MATCH
+          else # arg is path to node or just String
+            targets = src.locate(arg_str)
+            targets.empty? ? arg_str : targets
         end
       end
     end.compact
     children = xform.nodes.collect do |child|
-      activate(child, subj)
+      activate(child, src)
     end
     args << children.flatten if children.any?
     args
   end
+
+  def normalize_arg(str, src)
+    case str
+      when /'.+'/ then str[1..-2]
+      when /^[0-9]$/  then str
+      else src.locate(add_name_space_prefix str).first
+  end
+  end
+
+  # @param str [String] comma separated values that can be either an array or a Hash
+  # @return [Array[String]] returns separated values as array of strings
+  def separate_enumerables(str, src)
+    words = str.split(',').collect do |w| w.strip end
+    h = {}
+    a = []
+    words.each do |s|
+      case s
+        when /^'([\s\w]+)'$/ then a << $1
+        when /^(\w+): (\S.*)$/, /^(\w+) => (\S.*)$/ then h[$1.to_sym] = normalize_arg($2, src)
+        when /^'(.+)' => (\S.*)$/ then h[$1] = normalize_arg($2, src)
+        else a << normalize_arg(s, src)
+      end
+    end
+    a.empty? ? h : a
+  end
+
 
   def add_name_space_prefix(str)
     str.split('/').collect do |w|
