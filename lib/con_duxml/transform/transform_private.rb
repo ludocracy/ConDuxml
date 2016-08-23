@@ -12,7 +12,13 @@ module Private
     @source = src
     get_sources(xform).collect do |src|
       args = get_args(xform, src)
-      output = get_method(xform).call(*args)
+      meth = get_method(xform)
+      a = meth.arity
+      if a == -1 or args.size == a or args.size.between?(-1 - a, 0 - a)
+        output = meth.call(*args)
+      else
+        output = ''
+      end
       changed
       notify_observers(:Transform, xform, src, output)
       changed false
@@ -52,15 +58,16 @@ module Private
   def get_args(xform, src)
     args = xform.attributes.keys.sort.collect do |attr|
       if attr.to_s.match(/arg[0-9]*/)
-        case(arg_str = xform[attr].strip)
+        arg_str = xform[attr].strip
+        case arg_str
           when /,/              then separate_enumerables(arg_str, src)
           when /^([\w]+): (\S.*)$/, /^([\S]+) => (\S.*)$/ then {$1.to_sym => normalize_arg($2, src)}
             when /^'(.+)' => (.+)$/ then {$1 => normalize_arg($2, src)}
           when /\//             then src.locate(add_name_space_prefix arg_str).first
           when /^'([\s\w]+)'$/    then $MATCH
-          else # arg is path to node or just String
-            targets = src.locate(arg_str)
-            targets.empty? ? arg_str : targets
+          else # arg is path to node
+            target = src.locate(add_name_space_prefix arg_str).first
+            target or ''
         end
       end
     end.compact
@@ -74,9 +81,11 @@ module Private
   def normalize_arg(str, src)
     case str
       when /'.+'/ then str[1..-2]
-      when /^[0-9]$/  then str
+      when /^[0-9]$/  then str.to_i
+      when 'true' then true
+      when 'false' then false
       else src.locate(add_name_space_prefix str).first
-  end
+    end
   end
 
   # @param str [String] comma separated values that can be either an array or a Hash
@@ -98,6 +107,7 @@ module Private
 
 
   def add_name_space_prefix(str)
+    str
     str.split('/').collect do |w|
       w.match(/\w+/) ? "#{src_ns ? src_ns+':' : ''}#{w}" : w
     end.join('/')
