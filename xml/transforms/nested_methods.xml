@@ -1,10 +1,12 @@
 <transform grammar="Dita.grammar" source="component/memoryMaps/memoryMap" src_ns="ipxact">
-    <dita:topic source="addressBlock" arg0="name/*">
-        <dita:table arg0="'Name', 'Address offset', 'Size'">
-                <dita:row source="register" arg0="name/*, addressOffset/*, size/*"/>
-        </dita:table>
-        <dita:table source="register" arg0="'Name', 'Bit offset', 'Bit width'">
-                <dita:row source="field" arg0="name/*, bitOffset/*, bitWidth/*"/>
-        </dita:table>
-    </dita:topic>
+  <dita:topic source="addressBlock" arg0="name/*">
+    <element arg="'body'">
+      <dita:table arg0="'Name', 'Address offset', 'Size'">
+        <dita:row source="register" arg0="name/*, addressOffset/*, size/*"/>
+      </dita:table>
+      <dita:table source="register" arg0="'Name', 'Bit offset', 'Bit width'">
+        <dita:row source="field" arg0="name/*, bitOffset/*, bitWidth/*"/>
+      </dita:table>
+    </element>
+  </dita:topic>
 </transform>

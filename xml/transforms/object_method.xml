@@ -1,5 +1,7 @@
 <transform grammar="Dita.grammar" source="component/memoryMaps/memoryMap" src_ns="ipxact">
     <dita:topic source="addressBlock" arg0="name/*">
-      <boo arg="'asdf'"/>
+      <element arg="'body'">
+        <boo arg="'asdf'"/>
+      </element>
     </dita:topic>
 </transform>

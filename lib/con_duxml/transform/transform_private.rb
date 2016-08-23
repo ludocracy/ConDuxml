@@ -22,6 +22,10 @@ module Private
       changed
       notify_observers(:Transform, xform, src, output)
       changed false
+      output.add_observer doc.history if output.respond_to?(:add_observer)
+      if output.is_a?(Element) and doc.history.strict?
+        raise Exception, doc.history.latest.description unless doc.grammar.validate output
+      end
       output
     end
   end
@@ -64,7 +68,7 @@ module Private
           when /^([\w]+): (\S.*)$/, /^([\S]+) => (\S.*)$/ then {$1.to_sym => normalize_arg($2, src)}
             when /^'(.+)' => (.+)$/ then {$1 => normalize_arg($2, src)}
           when /\//             then src.locate(add_name_space_prefix arg_str).first
-          when /^'([\s\w]+)'$/    then $MATCH
+          when /^'([\s\w]+)'$/    then $1
           else # arg is path to node
             target = src.locate(add_name_space_prefix arg_str).first
             target or ''

@@ -11,29 +11,34 @@ module ConDuxml
   attr_reader :src_ns
 
   # @param transforms [String, Doc] transforms file or path to one
-  # @param doc_or_path [String, Doc] XML document or path to one that will provide content to be transformed; source file can
-  #   also contain directives or links to them
-  # @return [Doc] result of transform; automatically hashed into @transforms
-  def transform(transforms, doc_or_path=nil)
-    @output = Doc.new
+  # @param doc_or_path [String, Doc] XML document or path to one that will provide content to be transformed
+  # @param opts [Hash] more to come TODO
+  #   :strict => [boolean] # true by default, throws errors when transform results violate given grammar; if false,
+  #                        # saves error to doc.history and resumes transform
+  # @return [Doc] result of transform; automatically saved to @doc
+  def transform(transforms, doc_or_path, opts={})
+    @doc = Doc.new
     transforms = case transforms
                    when Doc then transforms.root
                    when Element then transforms
                    when String then sax(transforms).root
                    else
                  end
-    @doc = case doc_or_path
+    @src_doc = case doc_or_path
              when Doc then doc_or_path
              when String then sax doc_or_path
-             else doc
+             else
            end
     @src_ns = transforms[:src_ns]
-    source = doc.locate(add_name_space_prefix(transforms[:source])).first
-    @output.grammar = transforms[:grammar] if transforms[:grammar]
-    add_observer @output.history
-    a = activate(transforms.first, source).first
-    @output << a
+    src_node = src_doc.locate(add_name_space_prefix(transforms[:source])).first
+    doc.grammar = transforms[:grammar] if transforms[:grammar]
+    doc.history.strict?(false) if opts[:strict].is_a?(FalseClass)
+    add_observer doc.history
+    a = activate(transforms.first, src_node).first
+    @doc << a
   end
+
+  attr_reader :src_doc
 
   # instantiation takes a static design file and constructs a dynamic model by identifying certain keyword elements,
   # executing their method on child nodes, then removing the interpolating keyword element. these are:
