@@ -25,6 +25,8 @@ class ConDuxmlTest < Test::Unit::TestCase
 
   end
 
+  # TODO add tests for mismatched arities!!!
+
   def test_transform_simple_tree
     t = transform SIMPLE_TREE, SAMPLE_FILE
     load SIMPLE_TREE_OUT

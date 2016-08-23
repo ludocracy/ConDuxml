@@ -6,8 +6,9 @@ include Duxml
 
 # All public methods can be invoked by a transform element; please hide methods you don't want users to invoke in Private
 module Transform
-  include Observable
+  private
   include Private
+  public
 
   # most recent XML node from which content has been taken; for constructing relative paths
   @source
@@ -32,11 +33,10 @@ module Transform
     find_xform_event(node).input
   end
 
-  # @param path [String] path to node from @source e.g. 'child/grandchild'; target is expected to return ONE child
-  #   containing TEXT only
-  # @return [String] content of target node
-  def content(path)
-    @source.locate(add_name_space_prefix path).first.text
+  # @param node [Element, String] XML node including Strings
+  # @return [Array[String, Element]] array of child nodes of target
+  def content(node)
+    node.respond_to?(:nodes) ? node.nodes : node
   end
 
   # @param *args [*several_variants] see Duxml::Element#new; the only difference here is that this method has access to the content source
