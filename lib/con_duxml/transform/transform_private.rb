@@ -23,7 +23,7 @@ module Private
       notify_observers(:Transform, xform, src, output)
       changed false
       output.add_observer doc.history if output.respond_to?(:add_observer)
-      if output.is_a?(Element) and doc.history.strict?
+      if output.respond_to?(:nodes) and doc.history.strict?
         raise Exception, doc.history.latest.description unless doc.grammar.validate output
       end
       output
