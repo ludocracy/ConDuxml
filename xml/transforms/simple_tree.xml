@@ -1,7 +1,9 @@
 <transform grammar="Dita.grammar" source="component/memoryMaps/memoryMap" src_ns="ipxact">
-    <dita:topic source="addressBlock" arg0="name/*">
-        <dita:table arg0="'Name', 'Address offset', 'Size'">
-                <dita:row source="register" arg0="name/*, addressOffset/*, size/*"/>
-        </dita:table>
-    </dita:topic>
+  <dita:topic source="addressBlock" arg0="name/*">
+    <element arg="'body'">
+      <dita:table arg0="'Name', 'Address offset', 'Size'">
+        <dita:row source="register" arg0="name/*, addressOffset/*, size/*"/>
+      </dita:table>
+    </element>
+  </dita:topic>
 </transform>
