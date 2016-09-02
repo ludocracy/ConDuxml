@@ -15,6 +15,12 @@ class ElementTest < Test::Unit::TestCase
 
   attr_reader :e
 
+  def test_instantiate
+    x = sax '<root foot="poot"><first/><second><third>some text</third><fourth/></second><fifth/></root>'
+    i = x.instantiate
+    assert_equal x.to_s, i.to_s
+  end
+
   def test_split
     ans = e.split do |child| child[:attr] end
     assert_equal '<test><child attr="duck"/><child attr="duck"/></test>', ans.first.to_s

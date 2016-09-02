@@ -10,8 +10,8 @@ module ConDuxml
       @ref = target
     end
 
-    def resolve_ref(attr=nil)
-      @ref ||= self[attr || :ref]
+    def resolve_ref(attr='ref')
+      doc.locate self[attr]
     end
 
     # creates copy of referent (found from context given by 'meta') at this element's location

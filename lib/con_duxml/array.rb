@@ -10,16 +10,19 @@ module ConDuxml
     include Instance
     include Enumerable
 
-    # @param block [block] each duplicated node is yielded to block if given
     # @return [Array[Element]] flattened array of all duplicated Elements
-    def instantiate(&block)
+    def instantiate
       size_expr = size.respond_to?(:to_i) ? size.to_i : size.to_s
       if size_expr.is_a? Fixnum
         new_children = []
         size_expr.times do |index|
-          nodes.each do |node|
-            new_child = block_given? ? yield(node.dclone, index) : node.dclone
-            new_children << new_child
+          source_nodes = if nodes.empty? and self[:ref]
+            resolve_ref
+          else
+            nodes
+          end
+          source_nodes.each do |node|
+            new_children << node.instantiate
           end
         end
         new_children
@@ -31,12 +34,6 @@ module ConDuxml
     # size can be Fixnum or a Parameter expression
     def size
       self[:size]
-    end
-
-    # overriding #each to only traverse children and return self on completion, not Enumerator
-    def each &block
-      @children.each &block
-      self
     end
   end # class Array
 end # module Dux
