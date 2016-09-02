@@ -1,4 +1,4 @@
 <root>
     <e/>
-    <instance ref="root.e"/>
+    <con_duxml:instance ref="root/e"/>
 </root>

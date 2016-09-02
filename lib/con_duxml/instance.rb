@@ -11,19 +11,21 @@ module ConDuxml
     end
 
     def resolve_ref(attr='ref')
-      doc.locate self[attr]
+      source = if self[:file]
+                 path = File.expand_path(File.dirname(doc.path) + '/' + self[:file])
+                 sax path
+               else
+                 doc
+               end
+      return source.locate self[attr] if self[attr]
+      [source.root]
     end
 
     # creates copy of referent (found from context given by 'meta') at this element's location
     def instantiate
-      new_kids = []
-      target = resolve_ref
-      if target.nil?
-        new_kids = nodes
-      else
-        new_kids << target.dclone
-      end
-      new_kids
+      targets = resolve_ref
+      targets = nodes if targets.empty?
+      targets.collect do |targe| targe.instantiate end
     end # def instantiate
   end # module Instance
 

@@ -15,7 +15,7 @@ module ConDuxml
       size_expr = size.respond_to?(:to_i) ? size.to_i : size.to_s
       if size_expr.is_a? Fixnum
         new_children = []
-        size_expr.times do |index|
+        size_expr.times do
           source_nodes = if nodes.empty? and self[:ref]
             resolve_ref
           else

@@ -19,15 +19,17 @@ module Duxml
     end
 
     def instantiate
-      stub << nodes.collect do |node|
-        if node.respond_to?(:nodes)
-          if node.name_space == 'con_duxml'
-            maudule = ConDuxml.const_get(node.simple_name.constantize)
-            node.extend maudule
+      if name_space == 'con_duxml'
+        maudule = ConDuxml.const_get(simple_name.constantize)
+        extend maudule
+        instantiate
+      else
+        stub << nodes.collect do |node|
+          if node.respond_to?(:nodes)
+            node.instantiate
+          else
+            node
           end
-          node.instantiate
-        else
-          node
         end
       end
     end
