@@ -18,19 +18,25 @@ module Duxml
       new_nodes
     end
 
-    def instantiate
+    # @param &block [Block] calls #instantiate on each child node and yields to block if given
+    # @return [Element] instantiated copy of this Element
+    def instantiate(&block)
       if name_space == 'con_duxml'
         maudule = ConDuxml.const_get(simple_name.constantize)
         extend maudule
         instantiate
       else
-        stub << nodes.collect do |node|
-          if node.respond_to?(:nodes)
-            node.instantiate
-          else
-            node
-          end
-        end
+        new_nodes = if block_given?
+                      nodes.collect do |node|
+                        new_node = yield node
+                        new_node.instantiate(&block) if new_node
+                      end
+                    else
+                      nodes.collect do |node|
+                        node.respond_to?(:nodes) ? node.instantiate : node
+                      end
+                    end
+        stub << new_nodes.compact
       end
     end
 

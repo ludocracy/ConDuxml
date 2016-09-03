@@ -67,4 +67,8 @@ class ConDuxmlTest < Test::Unit::TestCase
     #save BAD_XFORM_OUT, t
     assert_equal doc.root[1].to_s, t.root[1].to_s
   end
+
+  def test_instantiate
+
+  end
 end
