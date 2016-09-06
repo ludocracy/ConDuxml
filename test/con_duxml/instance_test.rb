@@ -16,14 +16,14 @@ class InstanceTest < Test::Unit::TestCase
 
   def test_instantiate
     load File.expand_path(File.dirname(__FILE__) + '/../../xml/instances/instance.xml')
-    a = doc.root.instantiate
-    assert_equal '<root><e/><e/></root>', a.to_s
+    a = doc.root[1].instantiate.first
+    assert_equal '<e/>', a.to_s
   end
 
   def test_instantiate_file
     load File.expand_path(File.dirname(__FILE__) + '/../../xml/instances/instance_file.xml')
     r = doc.root
-    a = r.instantiate
-    assert_equal '<root><root><e/><e/></root></root>', a.to_s
+    a = r.instantiate.first
+    assert_equal '<root/>', a.to_s
   end
 end

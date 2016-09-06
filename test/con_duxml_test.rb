@@ -69,6 +69,14 @@ class ConDuxmlTest < Test::Unit::TestCase
   end
 
   def test_instantiate
+    load File.expand_path(File.dirname(__FILE__) + '/../xml/instances/instance.xml')
+    a = instantiate doc
+    assert_equal '<root><e/><e/></root>', a.root.to_s
+  end
 
+  def test_instantiate_file
+    load File.expand_path(File.dirname(__FILE__) + '/../xml/instances/instance_file.xml')
+    a = instantiate doc
+    assert_equal '<root><root><e/><e/></root></root>', a.root.to_s
   end
 end

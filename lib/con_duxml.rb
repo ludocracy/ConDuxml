@@ -1,5 +1,5 @@
 # Copyright (c) 2016 Freescale Semiconductor Inc.
-%w(transform array instance link).each do |f| require_relative "con_duxml/#{f}" end
+%w(transform instance link).each do |f| require_relative "con_duxml/#{f}" end
 
 module ConDuxml
   include Duxml
@@ -33,16 +33,33 @@ module ConDuxml
   # instantiation takes a static design file and constructs a dynamic model by identifying certain keyword elements,
   # executing their method on child nodes, then removing the interpolating keyword element. these are:
   #
-  # <array> - is replaced by multiple copies of its direct child or referenced XML nodes, allowing for user-defined variations between each copy
   # <instance> - when it contains design elements, it is removed but its reference ID is given to all children creating an XML-invisible arbitrary grouping
   #   when it references an XML file, ID or path to an XML element, the target is copied and inserted in place of this element
   # <link> - referenced XML file or nodes provides namespace, contents, and notification of changes to any direct children of this node @see ConDuxml::Link
   #
-  # @param doc_or_path [String, Doc] XML document or path to one that will provide design content
+  # @param doc_or_node [String, Doc, Element] XML document or path to one or XMl Element
   # @return [Doc] resulting XML document
-  def instantiate(doc_or_path, opts={})
-    @src_doc = get_doc doc_or_path
-    @doc = Doc.new << src_doc.root.instantiate
+  def instantiate(doc_or_node, opts={})
+    if doc_or_node.is_a?(Element)
+      new_node = doc_or_node.stub
+      new_children = doc_or_node.nodes.collect do |src_node|
+        if src_node.respond_to?(:nodes)
+          src_node.activate.collect do |inst|
+            inst.name.match(/con_duxml:/) ? instantiate(src_node) : instantiate(inst)
+          end
+        else
+          src_node.clone
+        end
+      end.flatten
+      if new_children.any?
+        new_node << new_children
+      end
+      new_node
+    else
+      @src_doc = get_doc doc_or_node
+      instance = instantiate(src_doc.root)
+      @doc = Doc.new << instance
+    end
   end
 
 private
