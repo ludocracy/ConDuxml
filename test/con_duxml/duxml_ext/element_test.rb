@@ -15,6 +15,20 @@ class ElementTest < Test::Unit::TestCase
 
   attr_reader :e
 
+  def test_instantiate
+    x = sax '<root foot="poot"><first/><second><third>some text</third><fourth/></second><fifth/></root>'
+    i = x.instantiate
+    assert_equal x.to_s, i.to_s
+  end
+
+  def test_instantiate_block
+    x = sax '<root foot="poot"><first/><second><third>some text</third></second><fifth><second/></fifth></root>'
+    i = x.instantiate do |node|
+      node unless node.is_a?(String) or node.name == 'second'
+    end
+    assert_equal '<root foot="poot"><first/><fifth/></root>', i.to_s
+  end
+
   def test_split
     ans = e.split do |child| child[:attr] end
     assert_equal '<test><child attr="duck"/><child attr="duck"/></test>', ans.first.to_s

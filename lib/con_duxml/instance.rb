@@ -5,29 +5,28 @@ module ConDuxml
   # Instances are copies of another XML element with a distinct set of parameter values
   # like Objects in relation to a Class
   module Instance
+    # @param target [String] path to target node or file
+    # @return [Element] self
     def ref=(target)
-      raise Exception unless target.respond_to?(:nodes) or File.exists?(target)
-      @ref = target
+      raise Exception unless doc.locate(target) or File.exists?(target)
+      self[:ref] = target
     end
 
-    def resolve_ref(attr=nil)
-      @ref ||= self[attr || :ref]
+    # @return [Element] either root node of referenced Doc or referenced node
+    def resolve_ref(attr='ref')
+      source = if self[:file]
+                 path = File.expand_path(File.dirname(doc.path) + '/' + self[:file])
+                 sax path
+               else
+                 doc
+               end
+      return source.locate(self[attr]).first if self[attr]
+      source.root if self[:file]
     end
 
-    # creates copy of referent (found from context given by 'meta') at this element's location
-    def instantiate
-      new_kids = []
-      target = resolve_ref
-      if target.nil?
-        new_kids = nodes
-      else
-        new_kids << target.dclone
-      end
-      new_kids
+    # @return [Array[Element, String]] array (or NodeSet) of either shallow clone of child nodes or referenced nodes @see #ref=
+    def activate
+      [resolve_ref || nodes].flatten.clone
     end # def instantiate
   end # module Instance
-
-  class InstanceClass
-    include Instance
-  end
 end # module Dux

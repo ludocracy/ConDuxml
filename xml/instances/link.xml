@@ -1,4 +1,4 @@
 <root>
     <e/>
-    <link ref="root.e"/>
+    <duxml:link ref="root.e"/>
 </root>

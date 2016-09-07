@@ -18,6 +18,21 @@ module Duxml
       new_nodes
     end
 
+    # @return [Array[Element]] instantiated copy of this Element
+    def activate
+      if name_space == 'duxml'
+        maudule = ConDuxml.const_get(simple_name.constantize)
+        extend maudule
+        activate
+      else
+        [clone]
+      end
+    end
+
+    def simple_name
+      name.split(':').last
+    end
+
     # @param pattern [several_variants] if String/Symbol or array of such, differences between merged entities' instance vars matching pattern are masked; if pattern is a hash, the key is the instance var, and the value becomes the new value for the merged entity
     # @param &block [block] groups nodes by &block then merges each group into a single row @see #chunk
     def merge(pattern=nil, &block)
