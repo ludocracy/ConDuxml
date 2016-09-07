@@ -20,12 +20,12 @@ module Duxml
 
     # @return [Array[Element]] instantiated copy of this Element
     def activate
-      if name_space == 'con_duxml'
+      if name_space == 'duxml'
         maudule = ConDuxml.const_get(simple_name.constantize)
         extend maudule
-        instantiate
+        activate
       else
-        [stub]
+        [clone]
       end
     end
 

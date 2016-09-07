@@ -21,16 +21,12 @@ module ConDuxml
                  doc
                end
       return source.locate(self[attr]).first if self[attr]
-      source.root
+      source.root if self[:file]
     end
 
     # @return [Array[Element, String]] array (or NodeSet) of either shallow clone of child nodes or referenced nodes @see #ref=
-    def instantiate
-      [resolve_ref.clone] or nodes.clone
+    def activate
+      [resolve_ref || nodes].flatten.clone
     end # def instantiate
   end # module Instance
-
-  class InstanceClass
-    include Instance
-  end
 end # module Dux
