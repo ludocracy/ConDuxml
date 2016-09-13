@@ -26,13 +26,30 @@ class InstanceTest < Test::Unit::TestCase
   end
 
   def test_ref_instance_group
-    # TODO implement #find_child then id targeting!!
+    load File.expand_path(File.dirname(__FILE__) + '/../../xml/instances/instance_group.xml')
+    r = doc.root.first
+    a = r.activate.first.nodes
+    assert_equal '[<e/>, <f/>, <g/>]', a.to_s
   end
 
   def test_instance_single
     load File.expand_path(File.dirname(__FILE__) + '/../../xml/instances/instance_single.xml')
     r = doc.root.first
     a = r.activate.first
+    assert_equal '<e/>', a.to_s
+  end
+
+  def test_instance_by_id
+    load File.expand_path(File.dirname(__FILE__) + '/../../xml/instances/instance_by_id.xml')
+    r = doc.root.first
+    a = r.activate.first
+    assert_equal '<e id="some_id"/>', a.to_s
+  end
+
+  def test_instance_of_instance
+    load File.expand_path(File.dirname(__FILE__) + '/../../xml/instances/instance_of_instance.xml')
+    r = doc.root[1]
+    a = r.activate.first.first
     assert_equal '<e/>', a.to_s
   end
 end

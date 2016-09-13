@@ -1,4 +1,8 @@
 <root>
-    <e/>
-    <duxml:instance ref="root/e"/>
+    <duxml:instance ref="group_id"/>
+    <duxml:instance id="group_id">
+        <e/>
+        <f/>
+        <g/>
+    </duxml:instance>
 </root>

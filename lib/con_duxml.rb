@@ -37,29 +37,39 @@ module ConDuxml
   #   when it references an XML file, ID or path to an XML element, the target is copied and inserted in place of this element
   # <link> - referenced XML file or nodes provides namespace, contents, and notification of changes to any direct children of this node @see ConDuxml::Link
   #
-  # @param doc_or_node [String, Doc, Element] XML document or path to one or XMl Element
+  # NOTE: instantiate will run TWICE on content to allow for instantiation of instantiations of instances. However, anything beyond two degrees of content replacement must be done manually by user.
+  #
+  # @param doc_or_path [String, Doc] XML document or path to one
   # @return [Doc] resulting XML document
-  def instantiate(doc_or_node, opts={})
-    if doc_or_node.is_a?(Element)
-      new_node = doc_or_node.stub
-      new_children = doc_or_node.nodes.collect do |src_node|
-        if src_node.respond_to?(:nodes)
-          src_node.activate.collect do |inst|
-            inst.name.match(/con_duxml:/) ? instantiate(src_node) : instantiate(inst)
-          end
-        else
-          src_node.clone
-        end
-      end.flatten
-      if new_children.any?
-        new_node << new_children
+  def instantiate(doc_or_path)
+    @src_doc = get_doc doc_or_path
+    @doc = Doc.new << instantiate_node(src_doc.root)
+    doc.traverse do |node|
+      if node.name.match(/duxml:/)
+        return instantiate(doc)
       end
-      new_node
-    else
-      @src_doc = get_doc doc_or_node
-      instance = instantiate(src_doc.root)
-      @doc = Doc.new << instance
     end
+  end
+
+  private
+  # @param node [Element] current node during recursion through source nodes
+  # @return [Element] result of instantiation
+  def instantiate_node(node)
+    new_node = node.stub
+    new_node.set_inst! node.inst
+    new_children = node.nodes.collect do |src_node|
+      if src_node.respond_to?(:nodes)
+        src_node.activate.collect do |inst|
+          instantiate_node(inst)
+        end
+      else
+        src_node.clone
+      end
+    end.flatten
+    if new_children.any?
+      new_node << new_children
+    end
+    new_node
   end
 
 private
