@@ -13,20 +13,31 @@ module ConDuxml
     end
 
     # @return [Element] either root node of referenced Doc or referenced node
-    def resolve_ref(attr='ref')
+    def resolve_ref
       source = if self[:file]
                  path = File.expand_path(File.dirname(doc.path) + '/' + self[:file])
                  sax path
                else
                  doc
                end
-      return source.locate(self[attr]).first if self[attr]
-      source.root if self[:file]
+      if self[:ref]
+        if Regexp.nmtoken.match(self[:ref]).to_s == self[:ref] and source.find_by_id(self[:ref])
+          return source.find_by_id self[:ref]
+        else
+          return source.locate(self[:ref]).first
+        end
+      elsif self[:file]
+        source.root
+      else
+        nil
+      end
     end
 
     # @return [Array[Element, String]] array (or NodeSet) of either shallow clone of child nodes or referenced nodes @see #ref=
     def activate
-      [resolve_ref || nodes].flatten.clone
+      [resolve_ref || nodes].flatten.clone.collect do |node|
+        node.set_inst! self
+      end
     end # def instantiate
   end # module Instance
 end # module Dux

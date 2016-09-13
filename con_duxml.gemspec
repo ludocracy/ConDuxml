@@ -1,7 +1,7 @@
 # coding: utf-8
 Gem::Specification.new do |spec|
   spec.name          = "con_duxml"
-  spec.version       = "0.4.0"
+  spec.version       = "0.5.0"
   spec.summary       = "Construct Universal XML"
   spec.authors       = ["Peter Kong"]
   spec.email         = ["peter.kong@nxp.com"]
@@ -19,7 +19,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   # Add any gems that your plugin needs to run within a host application
-  spec.add_runtime_dependency "duxml", "~> 0.8"
+  spec.add_runtime_dependency "duxml", "~> 0.8.9"
   spec.add_runtime_dependency "ruby-dita", "~> 0.4"
 
   # Add any gems that your plugin needs for its development environment only

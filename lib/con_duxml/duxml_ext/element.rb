@@ -33,6 +33,13 @@ module Duxml
       name.split(':').last
     end
 
+    def set_inst!(inst_node)
+      @inst = inst_node
+      self
+    end
+
+    attr_reader :inst
+
     # @param pattern [several_variants] if String/Symbol or array of such, differences between merged entities' instance vars matching pattern are masked; if pattern is a hash, the key is the instance var, and the value becomes the new value for the merged entity
     # @param &block [block] groups nodes by &block then merges each group into a single row @see #chunk
     def merge(pattern=nil, &block)

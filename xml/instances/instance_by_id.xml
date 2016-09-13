@@ -1,0 +1,4 @@
+<root>
+    <e id="some_id"/>
+    <duxml:instance ref="some_id"/>
+</root>

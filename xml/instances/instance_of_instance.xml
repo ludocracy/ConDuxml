@@ -1,0 +1,6 @@
+<root>
+    <duxml:instance id="test0">
+        <e/>
+    </duxml:instance>
+    <duxml:instance ref="test0"/>
+</root>
